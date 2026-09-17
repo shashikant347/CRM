@@ -44,7 +44,7 @@ exports.create = async (req, res) => {
   try {
     const contact = await Contact.create({ ...req.body, ownerId: req.user.id });
     res.status(201).json(contact);
-  } catch (err) {z
+  } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
