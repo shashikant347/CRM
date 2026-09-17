@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
+import ContactDetail from './pages/ContactDetail';
 import Leads from './pages/Leads';
 import Deals from './pages/Deals';
 import Activities from './pages/Activities';
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
+          <Route path="/contacts/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
           <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
           <Route path="/deals" element={<ProtectedRoute><Deals /></ProtectedRoute>} />
           <Route path="/activities" element={<ProtectedRoute><Activities /></ProtectedRoute>} />

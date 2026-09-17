@@ -41,8 +41,12 @@ async function start() {
   try {
     await sequelize.authenticate();
     console.log('Database connected.');
-    // In production, prefer proper migrations over sync().
-    await sequelize.sync({ alter: process.env.NODE_ENV !== 'production' });
+    // NOTE: alter:true was removed here. On every restart it re-added a new
+    // unique index for columns like User.email instead of reusing the old
+    // one, and MySQL eventually hit its 64-keys-per-table limit. Plain
+    // sync() still creates any missing tables (e.g. a newly added model)
+    // without touching columns/indexes on tables that already exist.
+    await sequelize.sync();
     console.log('Models synced.');
     app.listen(PORT, () => console.log(`CRM API running on http://localhost:${PORT}`));
   } catch (err) {

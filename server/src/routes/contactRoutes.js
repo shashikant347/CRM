@@ -7,6 +7,7 @@ const { contactCreateSchema, contactUpdateSchema } = require('../validators/sche
 router.use(authenticate);
 router.get('/', ctrl.list);
 router.get('/:id', ctrl.get);
+router.get('/:id/timeline', ctrl.timeline);
 router.post('/', validate(contactCreateSchema), ctrl.create);
 router.put('/:id', validate(contactUpdateSchema), ctrl.update);
 router.delete('/:id', ctrl.remove);

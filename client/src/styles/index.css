@@ -215,6 +215,117 @@ select {
 }
 select:focus { border-color: var(--teal); outline: none; }
 
+/* ============ Contact cards (grouped by owner) ============ */
+.owner-group { margin-bottom: 30px; }
+.owner-group:last-child { margin-bottom: 0; }
+.owner-group-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.owner-group-name {
+  background: none; border: none; padding: 0; font-family: var(--display);
+  font-weight: 600; font-size: 1rem; color: var(--ink); cursor: pointer;
+}
+.owner-group-name:hover { color: var(--teal-dark); text-decoration: underline; }
+.owner-role-badge {
+  font-size: 0.7rem; font-weight: 600; text-transform: capitalize; color: var(--teal-dark);
+  background: var(--teal-tint); padding: 3px 9px; border-radius: 999px;
+}
+.owner-group-count { margin-left: auto; font-size: 0.8rem; color: var(--muted); }
+
+.contact-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px;
+}
+.contact-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column; gap: 12px;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.contact-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.contact-card-top { display: flex; align-items: flex-start; gap: 10px; }
+.contact-card-avatar {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+  color: white; display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-weight: 700; font-size: 0.95rem;
+}
+.contact-card-name { font-weight: 600; font-size: 0.95rem; color: var(--ink); }
+.contact-card-role { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.contact-card-meta { font-size: 0.82rem; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+.contact-card-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding-top: 10px; border-top: 1px solid var(--border);
+}
+.owner-tag {
+  background: none; border: none; padding: 0; font-size: 0.75rem; color: var(--muted-soft);
+  cursor: pointer;
+}
+.owner-tag:hover { color: var(--teal-dark); text-decoration: underline; }
+.chip-count {
+  font-size: 0.7rem; background: rgba(255,255,255,0.5); padding: 1px 6px; border-radius: 999px;
+  margin-left: 4px;
+}
+.chip.active .chip-count { background: rgba(255,255,255,0.25); }
+.show-all-btn {
+  display: block; margin: 12px auto 0; background: var(--surface); border: 1px dashed var(--border-strong);
+  color: var(--teal-dark); font-weight: 600; font-size: 0.82rem; padding: 8px 18px; border-radius: var(--radius-sm);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.show-all-btn:hover { background: var(--teal-tint); border-color: var(--teal); }
+
+.contact-card-name-link { display: block; color: var(--ink); text-decoration: none; }
+.contact-card-name-link:hover { color: var(--teal-dark); text-decoration: underline; }
+
+/* ============ Contact profile / timeline page ============ */
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px; color: var(--muted);
+  text-decoration: none; font-size: 0.85rem; font-weight: 500;
+}
+.back-link:hover { color: var(--teal-dark); }
+
+.contact-profile-head { display: flex; align-items: center; gap: 14px; }
+
+.contact-profile-meta {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px;
+}
+.contact-profile-meta > div {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 16px; font-weight: 600; font-size: 0.95rem;
+}
+.contact-profile-meta .muted { display: block; font-size: 0.75rem; font-weight: 500; margin-bottom: 4px; }
+
+.panel {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px 22px; box-shadow: var(--shadow-sm);
+}
+.panel h2 { font-size: 1.05rem; margin-bottom: 16px; }
+
+.timeline { display: flex; flex-direction: column; }
+.timeline-row {
+  display: flex; align-items: flex-start; gap: 12px; padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.timeline-row:last-child { border-bottom: none; padding-bottom: 0; }
+.timeline-icon {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--teal-tint); color: var(--teal-dark);
+}
+.timeline-icon-deal, .timeline-icon-stage { background: var(--amber-tint); color: var(--amber); }
+.timeline-icon-lead { background: var(--teal-tint); color: var(--teal-dark); }
+.timeline-icon-meeting { background: #E6E9F5; color: #4A5DBF; }
+.timeline-content { flex: 1; min-width: 0; }
+.timeline-title { font-size: 0.9rem; color: var(--ink); font-weight: 500; word-break: break-word; }
+.timeline-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; text-transform: capitalize; }
+.timeline-date { font-size: 0.76rem; color: var(--muted-soft); white-space: nowrap; padding-top: 2px; }
+
+@media (max-width: 900px) {
+  .contact-profile-meta { grid-template-columns: repeat(2, 1fr); }
+  .timeline-row { flex-wrap: wrap; }
+  .timeline-date { width: 100%; padding-left: 40px; }
+}
+
 .empty-state {
   padding: 52px 24px; text-align: center; color: var(--muted); background: var(--surface);
   border: 1.5px dashed var(--border-strong); border-radius: var(--radius); font-size: 0.92rem;

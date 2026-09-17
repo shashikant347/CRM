@@ -1,4 +1,4 @@
-const { Deal, Contact, Lead, User } = require('../models');
+const { Deal, Contact, Lead, User, DealStageHistory } = require('../models');
 
 exports.list = async (req, res) => {
   try {
@@ -50,6 +50,8 @@ exports.get = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const deal = await Deal.create({ ...req.body, ownerId: req.user.id });
+    // Log the starting stage so the timeline always has a first entry.
+    await DealStageHistory.create({ dealId: deal.id, fromStage: null, toStage: deal.stage });
     res.status(201).json(deal);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -60,7 +62,14 @@ exports.update = async (req, res) => {
   try {
     const deal = await Deal.findByPk(req.params.id);
     if (!deal) return res.status(404).json({ error: 'Deal not found' });
+
+    const previousStage = deal.stage;
     await deal.update(req.body);
+
+    if (req.body.stage && req.body.stage !== previousStage) {
+      await DealStageHistory.create({ dealId: deal.id, fromStage: previousStage, toStage: deal.stage });
+    }
+
     res.json(deal);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -76,7 +85,14 @@ exports.updateStage = async (req, res) => {
     }
     const deal = await Deal.findByPk(req.params.id);
     if (!deal) return res.status(404).json({ error: 'Deal not found' });
+
+    const previousStage = deal.stage;
     await deal.update({ stage });
+
+    if (stage !== previousStage) {
+      await DealStageHistory.create({ dealId: deal.id, fromStage: previousStage, toStage: stage });
+    }
+
     res.json(deal);
   } catch (err) {
     res.status(400).json({ error: err.message });

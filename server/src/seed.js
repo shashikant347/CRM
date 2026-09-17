@@ -4,7 +4,7 @@
  * Safe to run multiple times on a fresh dev DB - it clears old rows first.
  */
 require('dotenv').config();
-const { sequelize, User, Contact, Lead, Deal, Activity } = require('./models');
+const { sequelize, User, Contact, Lead, Deal, Activity, DealStageHistory } = require('./models');
 
 async function seed() {
   await sequelize.authenticate();
@@ -15,6 +15,7 @@ async function seed() {
   // Plain DELETE (not TRUNCATE) so MySQL doesn't complain about foreign keys.
   // Order matters: delete child tables before the tables they reference.
   await Activity.destroy({ where: {} });
+  await DealStageHistory.destroy({ where: {} });
   await Deal.destroy({ where: {} });
   await Lead.destroy({ where: {} });
   await Contact.destroy({ where: {} });
@@ -71,6 +72,9 @@ async function seed() {
   await leads[3].update({ status: 'converted' });
 
   const deals = await Deal.bulkCreate(dealsData, { returning: true });
+  await DealStageHistory.bulkCreate(
+    deals.map((d) => ({ dealId: d.id, fromStage: null, toStage: d.stage }))
+  );
 
   console.log('Creating a few activities/notes...');
   await Activity.bulkCreate([

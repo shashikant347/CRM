@@ -5,6 +5,7 @@ const Lead = require('./Lead');
 const Deal = require('./Deal');
 const Activity = require('./Activity');
 const Meeting = require('./Meeting');
+const DealStageHistory = require('./DealStageHistory');
 
 // --- Associations ---
 
@@ -31,4 +32,7 @@ Deal.belongsTo(Contact, { foreignKey: 'contactId', as: 'contact' });
 Lead.hasOne(Deal, { foreignKey: 'leadId', as: 'deal' });
 Deal.belongsTo(Lead, { foreignKey: 'leadId', as: 'lead' });
 
-module.exports = { sequelize, User, Contact, Lead, Deal, Activity, Meeting };
+Deal.hasMany(DealStageHistory, { foreignKey: 'dealId', as: 'stageHistory', onDelete: 'CASCADE' });
+DealStageHistory.belongsTo(Deal, { foreignKey: 'dealId', as: 'deal' });
+
+module.exports = { sequelize, User, Contact, Lead, Deal, Activity, Meeting, DealStageHistory };
