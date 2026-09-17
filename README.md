@@ -2,7 +2,7 @@
 
 A full-stack CRM: leads, contacts, deals with a drag-and-drop pipeline.
 
-**Backend:** Node.js, Express, PostgreSQL (Sequelize), JWT auth
+**Backend:** Node.js, Express, (Sequelize), JWT auth
 **Frontend:** React (Vite), React Router, Axios
 
 ## Project structure
