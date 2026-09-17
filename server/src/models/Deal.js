@@ -10,6 +10,11 @@ const Deal = sequelize.define('Deal', {
   stage: { type: DataTypes.ENUM(...DEAL_STAGES), defaultValue: 'new' },
   expectedCloseDate: { type: DataTypes.DATEONLY },
   probability: { type: DataTypes.INTEGER, defaultValue: 20 },
+    paymentTerms: { type: DataTypes.STRING },
+  discountPercent: { type: DataTypes.INTEGER, defaultValue: 0 },
+  taxAmount: { type: DataTypes.DECIMAL(12, 2), defaultValue: 0 },
+  notes: { type: DataTypes.TEXT },
+  attachmentUrl: { type: DataTypes.STRING },
 }, {
   tableName: 'deals',
 });

@@ -62,6 +62,11 @@ const dealCreateSchema = Joi.object({
   stage: Joi.string().valid(...DEAL_STAGES),
   expectedCloseDate: Joi.date().iso().allow(null, ''),
   probability: Joi.number().integer().min(0).max(100),
+  paymentTerms: Joi.string().trim().max(200).allow('', null),
+  discountPercent: Joi.number().min(0).max(100),
+  taxAmount: Joi.number().min(0).max(1000000000),
+  notes: Joi.string().trim().max(3000).allow('', null),
+  attachmentUrl: Joi.string().uri().allow('', null),
 });
 
 const dealUpdateSchema = Joi.object({
@@ -71,6 +76,11 @@ const dealUpdateSchema = Joi.object({
   stage: Joi.string().valid(...DEAL_STAGES),
   expectedCloseDate: Joi.date().iso().allow(null, ''),
   probability: Joi.number().integer().min(0).max(100),
+  paymentTerms: Joi.string().trim().max(200).allow('', null),
+  discountPercent: Joi.number().min(0).max(100),
+  taxAmount: Joi.number().min(0).max(1000000000),
+  notes: Joi.string().trim().max(3000).allow('', null),
+  attachmentUrl: Joi.string().uri().allow('', null),
 }).min(1);
 
 const dealStageSchema = Joi.object({
@@ -97,6 +107,28 @@ const activityUpdateSchema = Joi.object({
   completed: Joi.boolean(),
 }).min(1);
 
+
+// ---------- Meetings ----------
+const meetingCreateSchema = Joi.object({
+  title: Joi.string().trim().min(2).max(200).required(),
+  notes: Joi.string().trim().max(3000).allow('', null),
+  scheduledAt: Joi.date().iso().required(),
+  durationMinutes: Joi.number().integer().min(5).max(480),
+  location: Joi.string().trim().max(200).allow('', null),
+  status: Joi.string().valid('scheduled', 'completed', 'cancelled'),
+  relatedType: Joi.string().valid(...RELATED_TYPES).required(),
+  relatedId: uuid.required(),
+});
+
+const meetingUpdateSchema = Joi.object({
+  title: Joi.string().trim().min(2).max(200),
+  notes: Joi.string().trim().max(3000).allow('', null),
+  scheduledAt: Joi.date().iso(),
+  durationMinutes: Joi.number().integer().min(5).max(480),
+  location: Joi.string().trim().max(200).allow('', null),
+  status: Joi.string().valid('scheduled', 'completed', 'cancelled'),
+}).min(1);
+
 module.exports = {
   registerSchema,
   loginSchema,
@@ -109,4 +141,6 @@ module.exports = {
   dealStageSchema,
   activityCreateSchema,
   activityUpdateSchema,
+  meetingCreateSchema,
+  meetingUpdateSchema,
 };

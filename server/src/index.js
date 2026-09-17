@@ -8,6 +8,7 @@ const contactRoutes = require('./routes/contactRoutes');
 const leadRoutes = require('./routes/leadRoutes');
 const dealRoutes = require('./routes/dealRoutes');
 const activityRoutes = require('./routes/activityRoutes');
+const meetingRoutes = require('./routes/meetingRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
@@ -23,6 +24,7 @@ app.use('/api/leads', leadRoutes);
 app.use('/api/deals', dealRoutes);
 app.use('/api/activities', activityRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/meetings', meetingRoutes);
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));

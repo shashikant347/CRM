@@ -4,6 +4,7 @@ const Contact = require('./Contact');
 const Lead = require('./Lead');
 const Deal = require('./Deal');
 const Activity = require('./Activity');
+const Meeting = require('./Meeting');
 
 // --- Associations ---
 
@@ -17,6 +18,9 @@ Lead.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
 User.hasMany(Deal, { foreignKey: 'ownerId', as: 'deals' });
 Deal.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
 
+User.hasMany(Meeting, { foreignKey: 'ownerId', as: 'meetings' });
+Meeting.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
+
 // Contact <-> Lead <-> Deal chain
 Contact.hasMany(Lead, { foreignKey: 'contactId', as: 'leads', onDelete: 'CASCADE' });
 Lead.belongsTo(Contact, { foreignKey: 'contactId', as: 'contact' });
@@ -27,4 +31,4 @@ Deal.belongsTo(Contact, { foreignKey: 'contactId', as: 'contact' });
 Lead.hasOne(Deal, { foreignKey: 'leadId', as: 'deal' });
 Deal.belongsTo(Lead, { foreignKey: 'leadId', as: 'lead' });
 
-module.exports = { sequelize, User, Contact, Lead, Deal, Activity };
+module.exports = { sequelize, User, Contact, Lead, Deal, Activity, Meeting };

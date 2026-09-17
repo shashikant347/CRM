@@ -8,6 +8,7 @@ import Contacts from './pages/Contacts';
 import Leads from './pages/Leads';
 import Deals from './pages/Deals';
 import Activities from './pages/Activities';
+import Meetings from './pages/Meetings';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
           <Route path="/deals" element={<ProtectedRoute><Deals /></ProtectedRoute>} />
           <Route path="/activities" element={<ProtectedRoute><Activities /></ProtectedRoute>} />
+          <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
