@@ -7,6 +7,7 @@ const { leadCreateSchema, leadUpdateSchema } = require('../validators/schemas');
 router.use(authenticate);
 router.get('/', ctrl.list);
 router.get('/:id', ctrl.get);
+router.get('/:id/timeline', ctrl.timeline);
 router.post('/', validate(leadCreateSchema), ctrl.create);
 router.put('/:id', validate(leadUpdateSchema), ctrl.update);
 router.post('/:id/convert', ctrl.convert);

@@ -370,6 +370,14 @@ select:focus { border-color: var(--teal); outline: none; }
 .deal-card-grip { color: var(--muted-soft); flex-shrink: 0; margin-top: 1px; }
 .deal-card-company { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
 .deal-card-value { font-family: var(--display); font-weight: 700; font-size: 0.87rem; color: var(--teal-dark); }
+.deal-card-edit {
+  flex-shrink: 0; background: none; border: none; padding: 2px; color: var(--muted-soft);
+  border-radius: 4px; display: flex; align-items: center; justify-content: center;
+}
+.deal-card-edit:hover { color: var(--teal-dark); background: var(--teal-tint); }
+
+.table-link { color: var(--ink); text-decoration: none; }
+.table-link:hover { color: var(--teal-dark); text-decoration: underline; }
 /* ============ Modal ============ */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(20, 23, 29, 0.5);

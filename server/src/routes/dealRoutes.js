@@ -8,9 +8,10 @@ router.use(authenticate);
 router.get('/', ctrl.list);
 router.get('/pipeline', ctrl.pipeline);
 router.get('/:id', ctrl.get);
+router.get('/:id/timeline', ctrl.timeline);
 router.post('/', validate(dealCreateSchema), ctrl.create);
 router.put('/:id', validate(dealUpdateSchema), ctrl.update);
 router.patch('/:id/stage', validate(dealStageSchema), ctrl.updateStage);
 router.delete('/:id', ctrl.remove);
 
-module.exports = router;
+module.exports = router;    

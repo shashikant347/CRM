@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import Modal from '../components/Modal';
 import api from '../api/client';
@@ -91,7 +92,7 @@ export default function Leads() {
           <tbody>
             {leads.map((l) => (
               <tr key={l.id}>
-                <td className="cell-strong">{l.title}</td>
+                <td className="cell-strong"><Link to={`/leads/${l.id}`} className="table-link">{l.title}</Link></td>
                 <td>{l.contact?.name || '—'}</td>
                 <td>{l.source || '—'}</td>
                 <td>₹{Number(l.estimatedValue).toLocaleString('en-IN')}</td>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import Modal from '../components/Modal';
 import DealCard from '../components/DealCard';
@@ -14,6 +15,7 @@ const empty = {
 };
 
 export default function Deals() {
+  const navigate = useNavigate();
   const [board, setBoard] = useState({});
   const [contacts, setContacts] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -133,7 +135,13 @@ export default function Deals() {
             </div>
             <div className="board-column-body">
               {(board[stage] || []).map((deal) => (
-                <DealCard key={deal.id} deal={deal} onDragStart={handleDragStart} onClick={openEdit} />
+                <DealCard
+                  key={deal.id}
+                  deal={deal}
+                  onDragStart={handleDragStart}
+                  onClick={(d) => navigate(`/deals/${d.id}`)}
+                  onEdit={openEdit}
+                />
               ))}
               {(board[stage] || []).length === 0 && <div className="board-empty">No deals</div>}
             </div>

@@ -7,7 +7,9 @@ import Dashboard from './pages/Dashboard';
 import Contacts from './pages/Contacts';
 import ContactDetail from './pages/ContactDetail';
 import Leads from './pages/Leads';
+import LeadDetail from './pages/LeadDetail';
 import Deals from './pages/Deals';
+import DealDetail from './pages/DealDetail';
 import Activities from './pages/Activities';
 import Meetings from './pages/Meetings';
 
@@ -22,7 +24,9 @@ export default function App() {
           <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
           <Route path="/contacts/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
           <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
+          <Route path="/leads/:id" element={<ProtectedRoute><LeadDetail /></ProtectedRoute>} />
           <Route path="/deals" element={<ProtectedRoute><Deals /></ProtectedRoute>} />
+          <Route path="/deals/:id" element={<ProtectedRoute><DealDetail /></ProtectedRoute>} />
           <Route path="/activities" element={<ProtectedRoute><Activities /></ProtectedRoute>} />
           <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />

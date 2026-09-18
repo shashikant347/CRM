@@ -1,4 +1,4 @@
-const { Deal, Contact, Lead, User, DealStageHistory } = require('../models');
+const { Deal, Contact, Lead, User, DealStageHistory, Activity, Meeting } = require('../models');
 
 exports.list = async (req, res) => {
   try {
@@ -105,6 +105,31 @@ exports.remove = async (req, res) => {
     if (!deal) return res.status(404).json({ error: 'Deal not found' });
     await deal.destroy();
     res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Full deal history: every stage it has moved through, plus activities and
+// meetings logged directly against this deal.
+exports.timeline = async (req, res) => {
+  try {
+    const deal = await Deal.findByPk(req.params.id, {
+      include: [
+        { model: Contact, as: 'contact' },
+        { model: Lead, as: 'lead' },
+        { model: User, as: 'owner', attributes: ['id', 'name', 'role'] },
+      ],
+    });
+    if (!deal) return res.status(404).json({ error: 'Deal not found' });
+
+    const [activities, meetings, stageHistory] = await Promise.all([
+      Activity.findAll({ where: { relatedType: 'deal', relatedId: deal.id }, order: [['createdAt', 'ASC']] }),
+      Meeting.findAll({ where: { relatedType: 'deal', relatedId: deal.id }, order: [['scheduledAt', 'ASC']] }),
+      DealStageHistory.findAll({ where: { dealId: deal.id }, order: [['changedAt', 'ASC']] }),
+    ]);
+
+    res.json({ deal, activities, meetings, stageHistory });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
