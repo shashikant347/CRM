@@ -6,7 +6,7 @@ exports.summary = async (req, res) => {
   try {
     const scope = await getRecordScope(req.user);
     const contactWhere = scope.isAdmin ? {} : scopeWhere(scope, 'contact');
-    const leadWhere = scope.isAdmin ? {} : { ownerId: req.user.id };
+    const leadWhere = scope.isAdmin ? {} : scopeWhere(scope, 'lead');
     const dealWhere = scope.isAdmin ? {} : scopeWhere(scope, 'deal');
     const [contactCount, leadCount, openDeals, wonDeals] = await Promise.all([
       Contact.count({ where: contactWhere }),

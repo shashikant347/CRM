@@ -283,7 +283,11 @@ export default function Leads() {
       ) : (
         <table className="table">
           <thead>
-            <tr><th>Lead</th><th>Contact</th><th>Source</th><th>Est. value</th><th>Status</th><th></th></tr>
+            <tr>
+              <th>Lead</th><th>Contact</th><th>Source</th><th>Est. value</th>
+              {user?.role === 'admin' && <th>Assigned to</th>}
+              <th>Status</th><th></th>
+            </tr>
           </thead>
           <tbody>
             {leads.map((l) => (
@@ -292,6 +296,7 @@ export default function Leads() {
                 <td>{l.contact?.name || '—'}</td>
                 <td>{l.source || '—'}</td>
                 <td>₹{Number(l.estimatedValue).toLocaleString('en-IN')}</td>
+                {user?.role === 'admin' && <td>{l.owner?.name || 'Unassigned'}</td>}
                 <td>
                   <select value={l.status} onChange={(e) => handleStatusChange(l, e.target.value)}>
                     {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}

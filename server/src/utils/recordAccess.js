@@ -1,4 +1,3 @@
-const { Op } = require('sequelize');
 const { Contact, Lead, Deal } = require('../models');
 
 async function getRecordScope(user) {
@@ -8,29 +7,13 @@ async function getRecordScope(user) {
 
   const [contacts, leads, deals] = await Promise.all([
     Contact.findAll({ where: { ownerId: user.id }, attributes: ['id'] }),
-    Lead.findAll({ where: { ownerId: user.id }, attributes: ['id', 'contactId'] }),
-    Deal.findAll({ where: { ownerId: user.id }, attributes: ['id', 'contactId'] }),
+    Lead.findAll({ where: { ownerId: user.id }, attributes: ['id'] }),
+    Deal.findAll({ where: { ownerId: user.id }, attributes: ['id'] }),
   ]);
 
   const contactIds = new Set(contacts.map((contact) => contact.id));
-  leads.forEach((lead) => contactIds.add(lead.contactId));
-  deals.forEach((deal) => contactIds.add(deal.contactId));
-
   const leadIds = new Set(leads.map((lead) => lead.id));
   const dealIds = new Set(deals.map((deal) => deal.id));
-
-  if (contactIds.size || leadIds.size) {
-    const linkedDeals = await Deal.findAll({
-      where: {
-        [Op.or]: [
-          ...(contactIds.size ? [{ contactId: [...contactIds] }] : []),
-          ...(leadIds.size ? [{ leadId: [...leadIds] }] : []),
-        ],
-      },
-      attributes: ['id'],
-    });
-    linkedDeals.forEach((deal) => dealIds.add(deal.id));
-  }
 
   return { isAdmin: false, contactIds, leadIds, dealIds };
 }
