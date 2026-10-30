@@ -1,9 +1,20 @@
 const { Deal, Contact, Lead, User, DealStageHistory, Activity, Meeting } = require('../models');
+const {
+  getRecordScope,
+  scopeWhere,
+  canAccessRecord,
+  canAccessRelatedRecord,
+  requireOwnedRecord,
+} = require('../utils/recordAccess');
 
 exports.list = async (req, res) => {
   try {
     const { stage } = req.query;
-    const where = stage ? { stage } : {};
+    const scope = await getRecordScope(req.user);
+    const where = {
+      ...(stage ? { stage } : {}),
+      ...(!scope.isAdmin ? scopeWhere(scope, 'deal') : {}),
+    };
     const deals = await Deal.findAll({
       where,
       include: [
@@ -21,7 +32,9 @@ exports.list = async (req, res) => {
 // Grouped by stage - handy for the Kanban pipeline board
 exports.pipeline = async (req, res) => {
   try {
+    const scope = await getRecordScope(req.user);
     const deals = await Deal.findAll({
+      where: scope.isAdmin ? {} : scopeWhere(scope, 'deal'),
       include: [{ model: Contact, as: 'contact', attributes: ['id', 'name', 'company'] }],
       order: [['createdAt', 'DESC']],
     });
@@ -37,11 +50,19 @@ exports.pipeline = async (req, res) => {
 
 exports.get = async (req, res) => {
   try {
+    const scope = await getRecordScope(req.user);
     const deal = await Deal.findByPk(req.params.id, {
       include: [{ model: Contact, as: 'contact' }, { model: Lead, as: 'lead' }],
     });
     if (!deal) return res.status(404).json({ error: 'Deal not found' });
-    res.json(deal);
+    if (!canAccessRecord(scope, 'deal', deal.id)) {
+      return res.status(404).json({ error: 'Deal not found' });
+    }
+    const result = deal.toJSON();
+    if (!scope.isAdmin && result.lead && !scope.leadIds.has(result.lead.id)) {
+      result.lead = null;
+    }
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -49,6 +70,19 @@ exports.get = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
+    const scope = await getRecordScope(req.user);
+    if (!await canAccessRelatedRecord(scope, 'contact', req.body.contactId)) {
+      return res.status(403).json({ error: 'You can only create deals for your own contacts' });
+    }
+    if (req.body.leadId) {
+      const linkedLead = await Lead.findByPk(req.body.leadId);
+      if (!linkedLead || !await canAccessRelatedRecord(scope, 'lead', linkedLead.id)) {
+        return res.status(403).json({ error: 'You can only link deals to your own leads' });
+      }
+      if (linkedLead.contactId !== req.body.contactId) {
+        return res.status(400).json({ error: 'The selected lead and contact do not match' });
+      }
+    }
     const deal = await Deal.create({ ...req.body, ownerId: req.user.id });
     // Log the starting stage so the timeline always has a first entry.
     await DealStageHistory.create({ dealId: deal.id, fromStage: null, toStage: deal.stage });
@@ -60,8 +94,14 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const deal = await Deal.findByPk(req.params.id);
-    if (!deal) return res.status(404).json({ error: 'Deal not found' });
+    const { record: deal, error } = await requireOwnedRecord(Deal, req.params.id, req.user, 'Deal');
+    if (error) return res.status(error.status).json({ error: error.message });
+    if (req.body.contactId) {
+      const scope = await getRecordScope(req.user);
+      if (!await canAccessRelatedRecord(scope, 'contact', req.body.contactId)) {
+        return res.status(403).json({ error: 'You can only link deals to your own contacts' });
+      }
+    }
 
     const previousStage = deal.stage;
     await deal.update(req.body);
@@ -83,8 +123,8 @@ exports.updateStage = async (req, res) => {
     if (!Deal.STAGES.includes(stage)) {
       return res.status(400).json({ error: `stage must be one of ${Deal.STAGES.join(', ')}` });
     }
-    const deal = await Deal.findByPk(req.params.id);
-    if (!deal) return res.status(404).json({ error: 'Deal not found' });
+    const { record: deal, error } = await requireOwnedRecord(Deal, req.params.id, req.user, 'Deal');
+    if (error) return res.status(error.status).json({ error: error.message });
 
     const previousStage = deal.stage;
     await deal.update({ stage });
@@ -101,8 +141,8 @@ exports.updateStage = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const deal = await Deal.findByPk(req.params.id);
-    if (!deal) return res.status(404).json({ error: 'Deal not found' });
+    const { record: deal, error } = await requireOwnedRecord(Deal, req.params.id, req.user, 'Deal');
+    if (error) return res.status(error.status).json({ error: error.message });
     await deal.destroy();
     res.status(204).send();
   } catch (err) {
@@ -114,6 +154,7 @@ exports.remove = async (req, res) => {
 // meetings logged directly against this deal.
 exports.timeline = async (req, res) => {
   try {
+    const scope = await getRecordScope(req.user);
     const deal = await Deal.findByPk(req.params.id, {
       include: [
         { model: Contact, as: 'contact' },
@@ -122,6 +163,13 @@ exports.timeline = async (req, res) => {
       ],
     });
     if (!deal) return res.status(404).json({ error: 'Deal not found' });
+    if (!canAccessRecord(scope, 'deal', deal.id)) {
+      return res.status(404).json({ error: 'Deal not found' });
+    }
+    const dealResult = deal.toJSON();
+    if (!scope.isAdmin && dealResult.lead && !scope.leadIds.has(dealResult.lead.id)) {
+      dealResult.lead = null;
+    }
 
     const [activities, meetings, stageHistory] = await Promise.all([
       Activity.findAll({ where: { relatedType: 'deal', relatedId: deal.id }, order: [['createdAt', 'ASC']] }),
@@ -129,7 +177,7 @@ exports.timeline = async (req, res) => {
       DealStageHistory.findAll({ where: { dealId: deal.id }, order: [['changedAt', 'ASC']] }),
     ]);
 
-    res.json({ deal, activities, meetings, stageHistory });
+    res.json({ deal: dealResult, activities, meetings, stageHistory });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

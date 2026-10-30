@@ -7,7 +7,6 @@ const registerSchema = Joi.object({
   name: Joi.string().trim().min(2).max(100).required(),
   email: Joi.string().trim().email().required(),
   password: Joi.string().min(6).max(72).required(),
-  role: Joi.string().valid('admin', 'sales_rep'),
 });
 
 const loginSchema = Joi.object({
@@ -129,6 +128,21 @@ const meetingUpdateSchema = Joi.object({
   status: Joi.string().valid('scheduled', 'completed', 'cancelled'),
 }).min(1);
 
+// ---------- Chat ----------
+const customerChatStartSchema = Joi.object({
+  name: Joi.string().trim().min(2).max(100).required(),
+  email: Joi.string().trim().email().max(254).allow('', null),
+  message: Joi.string().trim().min(1).max(3000).required(),
+});
+
+const chatMessageSchema = Joi.object({
+  message: Joi.string().trim().min(1).max(3000).required(),
+});
+
+const chatStatusSchema = Joi.object({
+  status: Joi.string().valid('open', 'closed').required(),
+});
+
 module.exports = {
   registerSchema,
   loginSchema,
@@ -143,4 +157,7 @@ module.exports = {
   activityUpdateSchema,
   meetingCreateSchema,
   meetingUpdateSchema,
+  customerChatStartSchema,
+  chatMessageSchema,
+  chatStatusSchema,
 };

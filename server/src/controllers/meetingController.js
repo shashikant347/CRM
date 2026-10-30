@@ -1,5 +1,10 @@
 const { Meeting, Contact, Lead, Deal } = require('../models');
 const { Op } = require('sequelize');
+const {
+  getRecordScope,
+  canAccessRelatedRecord,
+  requireOwnedRecord,
+} = require('../utils/recordAccess');
 
 // List all meetings, enriched with the linked record's display name.
 // Supports ?upcoming=true to only show future, scheduled meetings.
@@ -11,6 +16,23 @@ exports.listAll = async (req, res) => {
     if (upcoming === 'true') {
       where.scheduledAt = { [Op.gte]: new Date() };
       where.status = 'scheduled';
+    }
+
+    const scope = await getRecordScope(req.user);
+    if (!scope.isAdmin) {
+      const relatedRecords = [
+        ...(scope.contactIds.size ? [{ relatedType: 'contact', relatedId: [...scope.contactIds] }] : []),
+        ...(scope.leadIds.size ? [{ relatedType: 'lead', relatedId: [...scope.leadIds] }] : []),
+        ...(scope.dealIds.size ? [{ relatedType: 'deal', relatedId: [...scope.dealIds] }] : []),
+      ];
+      where[Op.and] = [
+        {
+          [Op.or]: [
+            { ownerId: req.user.id },
+            ...(relatedRecords.length ? [{ [Op.or]: relatedRecords }] : []),
+          ],
+        },
+      ];
     }
 
     const meetings = await Meeting.findAll({ where, order: [['scheduledAt', 'ASC']] });
@@ -43,6 +65,13 @@ exports.listAll = async (req, res) => {
 exports.listForEntity = async (req, res) => {
   try {
     const { relatedType, relatedId } = req.params;
+    if (!['contact', 'lead', 'deal'].includes(relatedType)) {
+      return res.status(400).json({ error: 'Invalid meeting record type' });
+    }
+    const scope = await getRecordScope(req.user);
+    if (!await canAccessRelatedRecord(scope, relatedType, relatedId)) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
     const meetings = await Meeting.findAll({
       where: { relatedType, relatedId },
       order: [['scheduledAt', 'ASC']],
@@ -55,6 +84,10 @@ exports.listForEntity = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
+    const scope = await getRecordScope(req.user);
+    if (!await canAccessRelatedRecord(scope, req.body.relatedType, req.body.relatedId)) {
+      return res.status(403).json({ error: 'You can only schedule meetings for your own records' });
+    }
     const meeting = await Meeting.create({ ...req.body, ownerId: req.user.id });
     res.status(201).json(meeting);
   } catch (err) {
@@ -64,8 +97,8 @@ exports.create = async (req, res) => {
 
 exports.update = async (req, res) => {
   try {
-    const meeting = await Meeting.findByPk(req.params.id);
-    if (!meeting) return res.status(404).json({ error: 'Meeting not found' });
+    const { record: meeting, error } = await requireOwnedRecord(Meeting, req.params.id, req.user, 'Meeting');
+    if (error) return res.status(error.status).json({ error: error.message });
     await meeting.update(req.body);
     res.json(meeting);
   } catch (err) {
@@ -75,8 +108,8 @@ exports.update = async (req, res) => {
 
 exports.remove = async (req, res) => {
   try {
-    const meeting = await Meeting.findByPk(req.params.id);
-    if (!meeting) return res.status(404).json({ error: 'Meeting not found' });
+    const { record: meeting, error } = await requireOwnedRecord(Meeting, req.params.id, req.user, 'Meeting');
+    if (error) return res.status(error.status).json({ error: error.message });
     await meeting.destroy();
     res.status(204).send();
   } catch (err) {

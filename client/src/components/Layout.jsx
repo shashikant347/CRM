@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Target, KanbanSquare, ListChecks, CalendarClock, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Target, KanbanSquare, ListChecks, CalendarClock, MessageCircle, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 const links = [
   { to: '/', label: 'Overview', end: true, icon: LayoutDashboard },
@@ -8,6 +8,7 @@ const links = [
   { to: '/deals', label: 'Pipeline', icon: KanbanSquare },
   { to: '/activities', label: 'Activities', icon: ListChecks },
   { to: '/meetings', label: 'Meetings', icon: CalendarClock },
+  { to: '/chat', label: 'Chat', icon: MessageCircle },
 ];
 
 export default function Layout({ children }) {

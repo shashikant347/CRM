@@ -12,6 +12,8 @@ import Deals from './pages/Deals';
 import DealDetail from './pages/DealDetail';
 import Activities from './pages/Activities';
 import Meetings from './pages/Meetings';
+import Chat from './pages/Chat';
+import CustomerSupport from './pages/CustomerSupport';
 
 export default function App() {
   return (
@@ -20,6 +22,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/support" element={<CustomerSupport />} />
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
           <Route path="/contacts/:id" element={<ProtectedRoute><ContactDetail /></ProtectedRoute>} />
@@ -29,6 +32,7 @@ export default function App() {
           <Route path="/deals/:id" element={<ProtectedRoute><DealDetail /></ProtectedRoute>} />
           <Route path="/activities" element={<ProtectedRoute><Activities /></ProtectedRoute>} />
           <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
+          <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
